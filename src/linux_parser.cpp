@@ -93,7 +93,7 @@ float LinuxParser::MemoryUtilization() {
 // Read and return the system uptime
 long LinuxParser::UpTime() {
   string line;
-  float value;
+  string value;
 
   std::ifstream utStream(kProcDirectory + kUptimeFilename);
   if (utStream.is_open()) {
@@ -101,20 +101,21 @@ long LinuxParser::UpTime() {
     std::istringstream lineStream(line);
     lineStream >> value;
   }
-  return (long)value;
+  utStream.close();
+  return std::stol(value);
 }
 
-// TODO: Read and return the number of jiffies for the system
+// (Unnecessary) Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() { return 0; }
 
-// TODO: Read and return the number of active jiffies for a PID
+// (Unnecessary) Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::ActiveJiffies(int pid [[maybe_unused]]) { return 0; }
 
-// TODO: Read and return the number of active jiffies for the system
+// (Unnecessary) Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() { return 0; }
 
-// TODO: Read and return the number of idle jiffies for the system
+// (Unnecessary) Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() { return 0; }
 
 // Read and return CPU utilization
@@ -274,8 +275,9 @@ string LinuxParser::User(int pid) {
 
 // Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
-  long uptime =
-      0;  // token #22 - Time when the process started, measured in clock ticks
+  long int uptime{0};
+  // long starttime = 0; // token #22 - Time when the process started, measured in clock ticks
+  // long utime = 0; // token #14 - CPU time spent in user mode, measured in clock ticks
   const unsigned long Hertz =
       sysconf(_SC_CLK_TCK);  // system clock ticks/second
   string line;
@@ -290,8 +292,8 @@ long LinuxParser::UpTime(int pid) {
       lineStream >> tokens[i];
     }
 
-    uptime = std::stoi(tokens[21]) / Hertz;
-    return uptime;
+    uptime = UpTime() - stol(tokens[21]) / Hertz;
+    stream.close();
   }
   return uptime;
 }

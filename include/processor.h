@@ -17,9 +17,8 @@ struct CpuTime {
 
 class Processor {
  public:
-  float Utilization();  // TODO: See src/processor.cpp
+  float Utilization();
 
-  // TODO: Declare any necessary private members
  private:
   CpuTime currentTime_, prevTime_;
   float Percentage();

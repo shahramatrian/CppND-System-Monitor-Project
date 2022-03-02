@@ -276,24 +276,25 @@ string LinuxParser::User(int pid) {
 // Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
   long int uptime{0};
-  // long starttime = 0; // token #22 - Time when the process started, measured in clock ticks
-  // long utime = 0; // token #14 - CPU time spent in user mode, measured in clock ticks
+
   const unsigned long Hertz =
       sysconf(_SC_CLK_TCK);  // system clock ticks/second
   string line;
 
-  std::string tokens[22];
+  std::string token;
   std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) +
                        LinuxParser::kStatFilename);
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream lineStream(line);
     for (int i = 0; i < 22; ++i) {
-      lineStream >> tokens[i];
+      lineStream >> token;
+      if (i == 21) {
+          uptime = UpTime() - stol(token) / Hertz;
+          stream.close();
+          return uptime;
+      }
     }
-
-    uptime = UpTime() - stol(tokens[21]) / Hertz;
-    stream.close();
   }
   return uptime;
 }

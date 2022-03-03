@@ -32,16 +32,11 @@ float Process::CpuUtilization() {
       sysconf(_SC_CLK_TCK);  // system clock ticks/second
 
   string line;
-  long utime;   // token #14 - CPU time spent in user code, measured in clock
-                // ticks
-  long stime;   // token #15 - CPU time spent in kernel code, measured in clock
-                // ticks
-  long cutime;  // token #16 - Waited-for children's CPU time spent in user code
-                // (in clock ticks)
-  long cstime;  // token #17 - Waited-for children's CPU time spent in kernel
-                // code (in clock ticks)
-  long starttime;  // token #22 - Time when the process started, measured in
-                   // clock ticks
+  long utime;   // token #14 - CPU time spent in user code, measured in clock ticks
+  long stime;   // token #15 - CPU time spent in kernel code, measured in clock ticks
+  long cutime;  // token #16 - Waited-for children's CPU time spent in user code (in clock ticks)
+  long cstime;  // token #17 - Waited-for children's CPU time spent in kernel code (in clock ticks)
+  long starttime;  // token #22 - Time when the process started, measured in clock ticks
 
   std::string tokens[22];
   std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) +
@@ -59,15 +54,11 @@ float Process::CpuUtilization() {
     cstime = std::stoi(tokens[16]);
     starttime = std::stoi(tokens[21]);
 
-    long total_time = utime + stime + cutime +
-                      cstime;  // total time spent for the process including the
-                               // time from children processes
-    unsigned long seconds =
-        LinuxParser::UpTime() -
-        (starttime /
-         Hertz);  // total elapsed time in seconds since the process started
+    long total_time = utime + stime + cutime + cstime;  // total time spent for the process including the
+                                                        // time from children processes
+    unsigned long seconds = LinuxParser::UpTime() - (starttime/Hertz);  // total elapsed time in seconds since the process started
     if (seconds > 0) {
-      cpu_usage = (((float)total_time / (float)Hertz) / (float)seconds);
+      cpu_usage = static_cast<float>(total_time) / static_cast<float>(Hertz) / static_cast<float>(seconds);
     }
   }
 
@@ -75,7 +66,10 @@ float Process::CpuUtilization() {
 }
 
 // Return the command that generated this process
-string Process::Command() { return LinuxParser::Command(pid); }
+string Process::Command() { 
+  string command = LinuxParser::Command(pid);
+  return (command.length() > 40) ? command.substr(0, 40) + "..." : command;
+}
 
 // Return this process's memory utilization
 string Process::Ram() {

@@ -11,10 +11,7 @@
 #include "process.h"
 #include "processor.h"
 
-using std::set;
-using std::size_t;
-using std::string;
-using std::vector;
+using namespace std;
 
 // Return the system's CPU
 Processor& System::Cpu() { return cpu_; }
@@ -30,7 +27,7 @@ vector<Process>& System::Processes() {
 
   for (int pid : pids) {
     if (currentPids.find(pid) == currentPids.end())
-      processes_.push_back(Process(pid));
+      processes_.emplace_back(pid);
   }
 
   for (auto& process : processes_) {
